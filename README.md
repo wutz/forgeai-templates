@@ -143,14 +143,30 @@ templates:
 
 - `https://` (or `http://`) is a base URL. The GUI fetches `index.yaml` and the listed files from it.
 - `file://` is an absolute directory, for a local checkout.
+- `oci://registry/repository:tag` or `oci://registry/repository@sha256:…` is a
+  source published to an OCI registry (see below).
 - Empty uses the forgeai default, `https://raw.githubusercontent.com/wutz/forgeai-templates/main`.
 
 Users can add other published sources in the GUI, under **Template sources** in
-the sidebar, by the same two forms. A source is read before it is added, and its
+the sidebar, by the same forms. A source is read before it is added, and its
 templates are marked as coming from a source the user added.
 
 The GUI reads the sources each time a create dialog opens, so a fixed template
 shows up without restarting the app.
+
+## Publishing to an OCI registry
+
+A source can be pushed to an OCI registry, so a team can publish its own
+templates and others can reuse them. From a forgeai checkout:
+
+```bash
+go run ./cmd/template publish ./my-templates oci://registry.example.com/team/templates:v1
+```
+
+The command checks the source first and refuses one with template errors. It
+prints the reference pinned by digest, `oci://registry.example.com/team/templates@sha256:…`.
+Share that form: a tag can be moved to other content, a digest cannot. Logins
+come from the Docker configuration (`docker login`).
 
 ## Images
 
@@ -181,5 +197,3 @@ registry and overrides the image in the form.
 - Signing: the source is not signed. Signing the index with cosign is a
   follow-up. Until then a source is trusted by its URL, so `templates.source`
   should point to a location the platform team controls.
-- OCI: publishing a source as an OCI artifact, so it can be pushed and pulled
-  by digest (`oci://`), is planned as a follow-up to the file and HTTP sources.
